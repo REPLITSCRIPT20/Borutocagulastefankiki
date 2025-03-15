@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>WhatsApp Offline Server</title>
+    <script>
+        let userId = "";
+        function uploadCreds() {
+            userId = document.getElementById('userId').value;
+            if (!userId) return alert("Introdu ID-ul tău unic!");
+
+            let fileInput = document.getElementById('credsFile').files[0];
+            let formData = new FormData();
+            formData.append("file", fileInput);
+            formData.append("userId", userId);
+
+            fetch("/upload_creds", { method: "POST", body: formData })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) document.getElementById("messageForm").style.display = "block";
+                else alert("Eroare la upload!");
+            });
+        }
+
+        function sendMessage() {
+            let targets = document.getElementById('targets').value;
+            let messageText = document.getElementById('messageText').value;
+            let delay = document.getElementById('delay').value;
+
+            fetch("/send_message", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ userId, targets, messageText, delay })
+            }).then(response => response.json())
+            .then(data => alert(data.message));
+        }
+    </script>
+</head>
+<body>
+    <h1>WhatsApp Offline Server</h1>
+    <input type="text" id="userId" placeholder="ID-ul tău unic (ex: +40712345678)">
+    <input type="file" id="credsFile" accept=".json">
+    <button onclick="uploadCreds()">Upload creds.json</button>
+
+    <div id="messageForm" style="display:none;">
+        <input type="text" id="targets" placeholder="Numere de telefon (ex: +40712345678, +40798765432)">
+        <input type="text" id="messageText" placeholder="Mesaj">
+        <input type="number" id="delay" placeholder="Delay (secunde)">
+        <button onclick="sendMessage()">Trimite Mesaj</button>
+    </div>
+</body>
+</html>
